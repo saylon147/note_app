@@ -1,10 +1,6 @@
-# 后端
 flask
 flask-jwt-extended
 flask-bcrypt
 flask-migrate
 flask-sqlalchemy
-
-# 前端
-streamlit
-requests
+flask_pymongo
