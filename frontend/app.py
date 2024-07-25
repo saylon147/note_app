@@ -1,159 +1,136 @@
-import dash
+from dash import Dash, html, Input, Output, State, callback, ctx
 import dash_bootstrap_components as dbc
-from dash import dcc, html
-from dash.dependencies import Input, Output, State
 import requests
 
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP],
+           suppress_callback_exceptions=True)
 
 API_URL = "http://localhost:5000/api"
 
-app.layout = dbc.Container(
-    [
-        dbc.NavbarSimple(
-            brand="Note App",
-            brand_href="/",
-            color="primary",
-            dark=True,
-        ),
-        dbc.Tabs(
-            [
-                dbc.Tab(label="Login", tab_id="login"),
-                dbc.Tab(label="Register", tab_id="register"),
-                dbc.Tab(label="Notes", tab_id="notes"),
-            ],
-            id="tabs",
-            active_tab="login",
-        ),
-        html.Div(id="tab-content", className="p-4")
-    ],
-    fluid=True,
-)
+app.layout = dbc.Container([
+    html.Br(),
+    dbc.Nav([
+        dbc.NavItem(dbc.NavLink("Login", id="login-tab", active=True, href="#")),
+        dbc.NavItem(dbc.NavLink("Register", id="register-tab", href="#")),
+        dbc.NavItem(dbc.NavLink("Notes", id="notes-tab", disabled=True, href="#"))
+    ], pills=True),
+    html.Br(),
+    html.Div(id='tab-content')
+])
+
 
 def login_layout():
-    return dbc.Row(
-        [
-            dbc.Col(
-                [
-                    html.H2("Login"),
-                    dbc.Input(id="login-username", placeholder="Username", type="text"),
-                    dbc.Input(id="login-password", placeholder="Password", type="password"),
-                    dbc.Button("Login", id="login-button", color="primary", className="mt-2"),
-                    html.Div(id="login-output", className="mt-2")
-                ],
-                width=4,
-            ),
-        ],
-        className="mt-4"
-    )
+    return dbc.Container([
+        dbc.Row([
+            dbc.Col([
+                dbc.FormFloating([
+                    dbc.Input(type="text", id="login-username", maxlength=16),
+                    dbc.Label("Username"),
+                ], className="mb-2"),
+                dbc.FormFloating([
+                    dbc.Input(type="password", id="login-password", maxlength=8),
+                    dbc.Label("Password"),
+                ], className="mb-2"),
+            ], width=6),
+            dbc.Col([
+                dbc.Button("Login", id="login-button", outline=True,
+                           color="primary", className="me-1")
+            ])
+        ], justify="center"),
+        html.Div(id="login-output", className="mt-2", style={
+            # "width": "80%",
+            "word-wrap": "break-word",
+        })
+    ])
+
 
 def register_layout():
-    return dbc.Row(
-        [
-            dbc.Col(
-                [
-                    html.H2("Register"),
-                    dbc.Input(id="register-username", placeholder="Username", type="text"),
-                    dbc.Input(id="register-password", placeholder="Password", type="password"),
-                    dbc.Button("Register", id="register-button", color="primary", className="mt-2"),
-                    html.Div(id="register-output", className="mt-2")
-                ],
-                width=4,
-            ),
-        ],
-        className="mt-4"
-    )
+    return dbc.Container([
+        dbc.Row([
+            dbc.Col([
+                dbc.FormFloating([
+                    dbc.Input(type="text", id="register-username", maxlength=16),
+                    dbc.Label("Username (maxlength=16)"),
+                ], className="mb-2"),
+                dbc.FormFloating([
+                    dbc.Input(type="password", id="register-password", maxlength=8),
+                    dbc.Label("Password (maxlength=8)"),
+                ], className="mb-2"),
+            ], width=6),
+            dbc.Col([
+                dbc.Button("Register", id="register-button", outline=True,
+                           color="success", className="me-1")
+            ])
+        ], justify="center"),
+        html.Div(id="register-output", className="mt-2", style={
+            # "width": "80%",
+            "word-wrap": "break-word",
+        })
+    ])
+
 
 def notes_layout():
-    return dbc.Row(
-        [
-            dbc.Col(
-                [
-                    html.H2("Your Notes"),
-                    dbc.Input(id="note-token", placeholder="Token", type="text"),
-                    dbc.Button("Load Notes", id="load-notes-button", color="primary", className="mt-2"),
-                    html.Div(id="notes-list", className="mt-4"),
-                    html.H3("Add a New Note"),
-                    dbc.Input(id="note-title", placeholder="Title", type="text"),
-                    dbc.Textarea(id="note-content", placeholder="Content"),
-                    dbc.Button("Add Note", id="add-note-button", color="primary", className="mt-2"),
-                    html.Div(id="add-note-output", className="mt-2")
-                ],
-                width=8,
-            ),
-        ],
-        className="mt-4"
-    )
+    return dbc.Container([
 
-@app.callback(Output("tab-content", "children"), [Input("tabs", "active_tab")])
-def render_tab_content(active_tab):
-    if active_tab == "login":
-        return login_layout()
-    elif active_tab == "register":
-        return register_layout()
-    elif active_tab == "notes":
-        return notes_layout()
-    return html.Div("404 - Page not found")
+    ])
 
-@app.callback(
+
+@callback(
+    Output("tab-content", "children"),
+    Output("login-tab", "active"),
+    Output("register-tab", "active"),
+    Output("notes-tab", "active"),
+    Input("login-tab", "n_clicks"),
+    Input("register-tab", "n_clicks"),
+    Input("notes-tab", "n_clicks")
+)
+def render_tab_content(n_clicks_login, n_clicks_register, n_clicks_notes):
+    if not ctx.triggered:
+        return login_layout(), True, False, False
+
+    if ctx.triggered_id == "login-tab":
+        return login_layout(), True, False, False
+    elif ctx.triggered_id == "register-tab":
+        return register_layout(), False, True, False
+    elif ctx.triggered_id == "notes-tab":
+        return notes_layout(), False, False, True
+    else:
+        return html.Div("404 - Page not found"), False, False, False
+
+
+@callback(
     Output("login-output", "children"),
-    [Input("login-button", "n_clicks")],
-    [State("login-username", "value"), State("login-password", "value")]
+    Output("notes-tab", "disabled"),
+    Input("login-button", "n_clicks"),
+    State("login-username", "value"),
+    State("login-password", "value")
 )
 def login(n_clicks, username, password):
     if n_clicks:
         response = requests.post(f"{API_URL}/auth/login", json={"username": username, "password": password})
         if response.status_code == 200:
-            token = response.json()["access_token"]
-            return f"Login successful. Token: {token}"
+            # token = response.json()["access_token"]
+            return "Login successful.", False
         else:
-            return "Login failed"
-    return ""
+            return "Login failed.", True
+    return "", True
 
-@app.callback(
+
+@callback(
     Output("register-output", "children"),
-    [Input("register-button", "n_clicks")],
-    [State("register-username", "value"), State("register-password", "value")]
+    Input("register-button", "n_clicks"),
+    State("register-username", "value"),
+    State("register-password", "value")
 )
 def register(n_clicks, username, password):
     if n_clicks:
         response = requests.post(f"{API_URL}/auth/register", json={"username": username, "password": password})
         if response.status_code == 201:
-            return "Registration successful"
+            return "Registration successful."
         else:
-            return "Registration failed"
+            return "Registration failed."
     return ""
 
-@app.callback(
-    Output("notes-list", "children"),
-    [Input("load-notes-button", "n_clicks")],
-    [State("note-token", "value")]
-)
-def load_notes(n_clicks, token):
-    if n_clicks:
-        headers = {"Authorization": f"Bearer {token}"}
-        response = requests.get(f"{API_URL}/notes", headers=headers)
-        if response.status_code == 200:
-            notes = response.json()
-            return html.Ul([html.Li(f"Title: {note['title']} - Content: {note['content']}") for note in notes])
-        else:
-            return "Failed to load notes"
-    return ""
-
-@app.callback(
-    Output("add-note-output", "children"),
-    [Input("add-note-button", "n_clicks")],
-    [State("note-token", "value"), State("note-title", "value"), State("note-content", "value")]
-)
-def add_note(n_clicks, token, title, content):
-    if n_clicks:
-        headers = {"Authorization": f"Bearer {token}"}
-        response = requests.post(f"{API_URL}/notes", json={"title": title, "content": content}, headers=headers)
-        if response.status_code == 201:
-            return "Note added successfully"
-        else:
-            return "Failed to add note"
-    return ""
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8050)
+    app.run(debug=True)
