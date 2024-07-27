@@ -4,6 +4,7 @@ from pages.user_operate import login_page, register_page, logout_page
 from pages.notes import notes_page
 from pages.home import home_page
 
+AUTH_URL = "http://localhost:5000/auth/"
 API_URL = "http://localhost:5000/api/"
 
 
@@ -43,7 +44,7 @@ def register_callbacks(app):
         if login_clicks:
             if login_btn == "Login":
                 print("do login")
-                response = requests.post(f"{API_URL}/auth/login",
+                response = requests.post(f"{AUTH_URL}login",
                                          json={"username": username, "password": password})
                 if response.status_code == 200:
                     print("login success")
@@ -54,7 +55,7 @@ def register_callbacks(app):
                     return False, no_update, 'Login failed'
             elif login_btn == "Register":
                 print("do register")
-                response = requests.post(f"{API_URL}/auth/register",
+                response = requests.post(f"{AUTH_URL}register",
                                          json={"username": username, "password": password})
                 if response.status_code == 201:
                     print("register success")

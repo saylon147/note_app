@@ -1,6 +1,11 @@
 # Note App
 SnB.001
 
+### 后续计划
+会有两个版本：
+1. Standalone版本，主要就是本地记录存取整理相关的；
+2. Server版本，会增加AI推荐相关的内容。
+
 ## 项目描述
 一个简单的笔记应用，支持用户注册、登录、笔记管理和标签管理功能。
 
@@ -18,9 +23,9 @@ SnB.001
    https://www.mongodb.com/try/download/community 
    下载对应的安装程序
    
-4. 运行后端服务器
+4. 导航到 `note_app` 目录,运行后端服务器
    ```bash
-   python app.py
+   python .\backend\app.py
 
 ### 前端
 1. 导航到 frontend 目录

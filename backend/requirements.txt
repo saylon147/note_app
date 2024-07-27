@@ -1,6 +1,4 @@
-flask
-flask-jwt-extended
-flask-bcrypt
-flask-migrate
-flask-sqlalchemy
-flask_pymongo
+flask>=2.0.0
+flask-jwt-extended>=4.0.0
+flask-bcrypt>=0.7.0
+mongoengine>=0.20.0

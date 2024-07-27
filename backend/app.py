@@ -1,24 +1,26 @@
 from flask import Flask
-from config import Config
-from extensions import bcrypt, jwt, mongo
+from utils.extensions import init_db, bcrypt, jwt
+from routes.auth import auth
+from routes.notes import notes
 
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.from_object('utils.config.Config')
 
+    # 初始化扩展
+    init_db()
     bcrypt.init_app(app)
     jwt.init_app(app)
-    mongo.init_app(app)
 
-    from routes.auth import auth_bp
-    from routes.notes import notes_bp
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    app.register_blueprint(notes_bp, url_prefix='/api/notes')
+    # 注册蓝图
+    app.register_blueprint(auth, url_prefix="/auth")
+    app.register_blueprint(notes, url_prefix="/api")
 
     return app
 
 
-if __name__ == '__main__':
-    app = create_app()
+app = create_app()
+
+if __name__ == "__main__":
     app.run(debug=True)

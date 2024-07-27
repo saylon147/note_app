@@ -1,24 +1,47 @@
 from flask import Blueprint, request, jsonify
-from extensions import bcrypt, mongo
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import (
+    create_access_token, create_refresh_token,
+    jwt_required, get_jwt_identity, unset_jwt_cookies
+)
+from utils.models import User
+from utils.extensions import bcrypt
+from datetime import datetime
 
-auth_bp = Blueprint('auth', __name__)
+auth = Blueprint('auth', __name__)
 
-@auth_bp.route('/register', methods=['POST'])
+
+@auth.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
-    user_id = mongo.db.users.insert_one({
-        'username': data['username'],
-        'password': hashed_password
-    }).inserted_id
-    return jsonify(message="User registered", user_id=str(user_id)), 201
+    username = data.get('username')
+    password = data.get('password')
 
-@auth_bp.route('/login', methods=['POST'])
+    if User.objects(username=username).first():
+        return jsonify({"msg": "Username already exists"}), 400
+
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    user = User(username=username, password=hashed_password)
+    user.save()
+
+    return jsonify({"msg": "User registered successfully"}), 201
+
+
+@auth.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user = mongo.db.users.find_one({'username': data['username']})
-    if user and bcrypt.check_password_hash(user['password'], data['password']):
-        access_token = create_access_token(identity=str(user['_id']))
-        return jsonify(access_token=access_token)
-    return jsonify(message="Invalid credentials"), 401
+    username = data.get('username')
+    password = data.get('password')
+
+    user = User.objects(username=username).first()
+    if not user:
+        return jsonify({"msg": "User not found"}), 404
+
+    if not user.verify_password(password):
+        return jsonify({"msg": "Password does not match"}), 401
+
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
+    return jsonify(access_token=access_token, refresh_token=refresh_token), 200
+
+
+
