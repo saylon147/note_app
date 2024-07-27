@@ -16,6 +16,7 @@ app.layout = html.Div([
         children=[
             dbc.NavItem(dbc.NavLink("Home", href='/')),
             dbc.NavItem(dbc.NavLink("Login", href='/login')),
+            dbc.NavItem(dbc.NavLink("Register", href='/register')),
             dbc.NavItem(dbc.NavLink("Notes", href='/notes')),
             dbc.NavItem(dbc.NavLink("Logout", href='/logout')),
         ],
@@ -27,7 +28,8 @@ app.layout = html.Div([
     ),
     dcc.Store(id='login-state', storage_type='local'),  # 存储登录状态
     dcc.Location(id='url', refresh=False),  # 监控URL变化
-    html.Div(id='page-content')  # 显示当前页面内容
+    html.Div(id='page-content'),  # 显示当前页面内容
+    html.Div(id='dummy-div', style={'display': 'none'})  # 隐藏组件，用于强制触发回调
 ])
 
 
