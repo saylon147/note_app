@@ -1,42 +1,50 @@
-import dash
-from dash import html, dcc
-import dash_bootstrap_components as dbc
+from dash import Dash, html, dcc
+import dash_mantine_components as dmc
+from dash_iconify import DashIconify
+
 from callbacks import register_callbacks
 
-
-# 创建Dash应用
-app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(__name__)
 app.config.suppress_callback_exceptions = True  # 忽略回调异常
+server = app.server
+server.secret_key = '04f69912a0fd7dd7eb0a77954c76573cb71017cc4e179b1ce9ebedac5c1f07f8'
 
 
-# 主布局
-app.layout = html.Div([
-    # 导航栏
-    dbc.NavbarSimple(
-        children=[
-            dbc.NavItem(dbc.NavLink("Home", href='/')),
-            dbc.NavItem(dbc.NavLink("Login", href='/login')),
-            dbc.NavItem(dbc.NavLink("Register", href='/register')),
-            dbc.NavItem(dbc.NavLink("Notes", href='/notes')),
-            dbc.NavItem(dbc.NavLink("Logout", href='/logout')),
-        ],
-        brand="My Notes",
-        brand_href="/",
-        color="primary",
-        dark=True,
-        className="mb-4"
-    ),
-    dcc.Store(id='login-state', storage_type='local'),  # 存储登录状态
-    dcc.Location(id='url', refresh=False),  # 监控URL变化
-    html.Div(id='page-content'),  # 显示当前页面内容
-    html.Div(id='dummy-div', style={'display': 'none'})  # 隐藏组件，用于强制触发回调
-])
+def get_icon(icon):
+    return DashIconify(icon=icon)
 
 
-# 注册回调函数
+app.layout = dmc.MantineProvider(
+    html.Div([
+        dcc.Location(id="url"),
+        dmc.NotificationProvider(),
+        html.Div(id="notifications-container"),
+
+        dmc.Flex([
+            html.Div([
+                dmc.NavLink(label="Home", leftSection=get_icon("solar:home-outline"),
+                            rightSection=get_icon("tabler-chevron-right"),
+                            href="/", active=True),
+                dmc.NavLink(label="Login", leftSection=get_icon("lets-icons:user-alt"),
+                            rightSection=get_icon("tabler-chevron-right"),
+                            href="/login", active=True),
+                dmc.NavLink(label="Register", leftSection=get_icon("lets-icons:user-add"),
+                            rightSection=get_icon("tabler-chevron-right"),
+                            href="/register", active=True),
+                dmc.NavLink(label="Logout", leftSection=get_icon("majesticons:logout-line"),
+                            rightSection=get_icon("tabler-chevron-right"),
+                            href="/logout", disabled=True),
+                dmc.Divider(),
+                dmc.NavLink(label="Notes", leftSection=get_icon("ph:pen-nib-bold"),
+                            rightSection=get_icon("tabler-chevron-right"),
+                            href="/notes", disabled=True),
+            ], style={"width": "20%"}),
+            html.Div(id='page-content', style={"width": "80%"},),
+        ], gap={"base": "lg"}),
+    ], style={'margin': '20px'},)
+)
+
 register_callbacks(app)
 
-
-# 运行应用
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run_server(debug=True)

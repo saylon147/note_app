@@ -13,6 +13,8 @@ def create_app():
     bcrypt.init_app(app)
     jwt.init_app(app)
 
+    app.secret_key = "04f69912a0fd7dd7eb0a77954c76573cb71017cc4e179b1ce9ebedac5c1f07f8"
+
     # 注册蓝图
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(notes, url_prefix="/api")

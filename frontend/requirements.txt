@@ -2,3 +2,5 @@ flask
 requests
 dash
 dash-bootstrap-components
+dash-mantine-components
+dash-iconify
