@@ -3,6 +3,7 @@ from dash import Output, Input, html
 from pages.home import home_page
 from pages.login import login_page, register_callback_login
 from pages.register import register_page, register_callback_register
+from pages.notes import notes_page, register_callback_notes
 
 
 def register_callbacks(app):
@@ -17,6 +18,8 @@ def register_callbacks(app):
             return login_page()
         elif pathname == "/register":
             return register_page()
+        elif pathname == "/notes":
+            return notes_page()
         else:
             return html.Div(
                 [
@@ -27,3 +30,4 @@ def register_callbacks(app):
 
     register_callback_login(app)
     register_callback_register(app)
+    register_callback_notes(app)

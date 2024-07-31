@@ -37,7 +37,7 @@ app.layout = dmc.MantineProvider(
                 dmc.Divider(),
                 dmc.NavLink(label="Notes", leftSection=get_icon("ph:pen-nib-bold"),
                             rightSection=get_icon("tabler-chevron-right"),
-                            href="/notes", disabled=True),
+                            href="/notes", active=True),
             ], style={"width": "20%"}),
             html.Div(id='page-content', style={"width": "80%"},),
         ], gap={"base": "lg"}),
