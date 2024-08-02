@@ -1,5 +1,5 @@
 import requests
-from dash import html, Input, State, Output
+from dash import html, Input, State, Output, no_update
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 from flask import session
@@ -11,12 +11,20 @@ def login_page():
     return html.Div([
         html.Div(id="login-notifications-container"),
 
-        dmc.Stack(children=[
-            dmc.TextInput(label="User Name", w=200, required=True, id="username"),
-            dmc.PasswordInput(label="Password", w=200, required=True, id="password"),
+        dmc.Stack([
+            dmc.Flex([
+                dmc.Stack(children=[
+                    dmc.TextInput(label="User Name", w=200, required=True, id="username"),
+                    dmc.PasswordInput(label="Password", w=200, required=True, id="password"),
+                ], align="center", justify="center"),
+                dmc.Button("Reset Pwd", variant="subtle", id="reset-pwd"),
+            ], direction="row", align="flex-end", justify="center", gap="lg"),
+
+            dmc.Divider(),
             dmc.Button("Login", variant="filled", leftSection=DashIconify(icon="lets-icons:user-alt"),
                        id="login-btn")
         ], align="center", justify="center")
+
     ])
 
 
@@ -56,3 +64,14 @@ def register_callback_login(app):
                     title="Error", action="show", message=f"MISSING: {', '.join(missing_field)}",
                     icon=DashIconify(icon="icon-park-solid:error"), autoClose=2000, color="red",
                 )
+
+    @app.callback(
+        Output('url', 'href'),
+        Input("reset-pwd", "n_clicks"),
+        State("username", "value"),
+        prevent_initial_call=True,
+    )
+    def reset_pwd(n_clicks, username):
+        if n_clicks:
+            return f'/resetpwd?username={username}'
+        return no_update

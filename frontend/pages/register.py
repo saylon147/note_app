@@ -33,7 +33,7 @@ def register_callback_register(app):
             if username and password:
                 response = requests.post(f"{AUTH_URL}/register",
                                          json={"username": username, "password": password})
-                if response.status_code == 201:
+                if response.status_code == 200:
                     return dmc.Notification(
                         title="Register success.", action="show", message="Welcome!",
                         icon=DashIconify(icon="ic:round-celebration"),

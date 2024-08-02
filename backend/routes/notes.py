@@ -14,8 +14,9 @@ def create_note():
     data = request.get_json()
     title = data.get('title')
     content = data.get('content')
+    tags = data.get('tags')
 
-    note = Note(user=user, title=title, content=content)
+    note = Note(user=user, title=title, content=content, tags=tags)
     note.save()
 
     return jsonify({"msg": "Note created successfully"}), 201
@@ -28,6 +29,11 @@ def get_notes():
     user = User.objects(id=user_id).first()
 
     notes = Note.objects(user=user)
-    notes_data = [{"title": note.title, "content": note.content} for note in notes]
+    notes_data = [{"title": note.title,
+                   "content": note.content,
+                   "tags": note.tags,
+                   "create_time": note.created_at,
+                   "update_time": note.updated_at,}
+                  for note in notes]
 
     return jsonify(notes_data), 200
