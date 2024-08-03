@@ -37,3 +37,13 @@ SnB.001
 3. 运行前端应用
    ```bash
    python app.py
+   
+## 说明
+使用 dash-mantine-components 需要注意：
+### React 18 Issue
+    Dash Mantine Components is based on REACT 18. You must set the env variable REACT_VERSION=18.2.0 before starting up the app.
+
+    npm install react@18.2.0 react-dom@18.2.0
+    
+    如果安装失败可以尝试使用其他 npm 镜像源
+    npm config set registry https://registry.npmmirror.com/

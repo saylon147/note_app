@@ -7,6 +7,8 @@ from flask import session
 AUTH_URL = "http://localhost:5000/auth"
 
 
+# TODO check LoadingOverlay component
+
 def login_page():
     return html.Div([
         html.Div(id="login-notifications-container"),
