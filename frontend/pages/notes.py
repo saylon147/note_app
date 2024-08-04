@@ -1,11 +1,12 @@
 import requests
-from dash import html, Input, State, Output
+from dash import html, Input, State, Output, no_update
 import dash_mantine_components as dmc
 from dash_iconify import DashIconify
 from flask import session
 
 # TODO 翻页用 Pagination 看看要不要结合使用 Tabs 作为顶部的分类
-# 结合 Grid 和 Card 来做展示
+
+API_URL = "http://localhost:5000/api"
 
 notes_list = [
     {
@@ -35,26 +36,6 @@ notes_list = [
 ]
 
 
-# def create_accordion_label(label, description):
-#     return dmc.AccordionControl(
-#         dmc.Group(
-#             [
-#                 # dmc.Avatar(src=image, radius="xl", size="lg"),
-#                 html.Div(
-#                     [
-#                         dmc.Text(label),
-#                         dmc.Text(description, size="sm", fw=400, c="dimmed"),
-#                     ]
-#                 ),
-#             ]
-#         )
-#     )
-#
-#
-# def create_accordion_content(content):
-#     return dmc.AccordionPanel(dmc.Text(content, size="sm"))
-
-
 def create_note_card(note):
     return dmc.Card(children=[
         dmc.Text(note.get("title"), fw=500),
@@ -63,8 +44,7 @@ def create_note_card(note):
         withBorder=True,
         shadow="sm",
         radius="md",
-        w=300,
-        h=200,
+        w=300, h=200,
     )
 
 
@@ -77,7 +57,7 @@ def notes_page():
     ]
     note_cards.append(
         dmc.GridCol(
-            dmc.Center(children=[dmc.Button("Add Note")]),
+            dmc.Center(children=[dmc.Button("Add Note", id="open-add-note-btn")]),
             span=span_value, w=300, h=200,
         )
     )
@@ -85,25 +65,44 @@ def notes_page():
     return html.Div([
         dmc.Title(f"Notes Page", order=1),
         html.Br(),
+        dmc.Modal(
+            id="add-note-modal",
+            title="Add Note",
+            zIndex=10000,
+            children=[
+                dmc.Stack(children=[
+                    dmc.TextInput(label="Title", id="new-note-title", required=True),
+                    dmc.TagsInput(label="Tags", id="new-note-tags", required=True, value=[], mb=10),
+                    dmc.Textarea(label="Content", id="new-note-content", required=True, autosize=True, minRows=3),
+                    dmc.Button("Add", id="new-note-btn"),
+                ]),
+            ],
+            closeOnClickOutside=False,
+        ),
 
         dmc.Grid(
             children=note_cards,
             gutter="xl", justify="flex-start", align="stretch"
         ),
-
-        # dmc.Accordion(
-        #     chevronPosition="right",
-        #     variant="contained",
-        #     children=[
-        #         dmc.AccordionItem([
-        #             create_accordion_label(note["title"], note["tag"]),
-        #             create_accordion_content(note["content"])
-        #         ], value=note["id"],)
-        #         for note in notes_list
-        #     ]
-        # ),
     ])
 
 
 def register_callback_notes(app):
-    pass
+    @app.callback(
+        Output("add-note-modal", "opened"),
+        [Input("open-add-note-btn", "n_clicks"),
+         Input("new-note-btn", "n_clicks")],
+        [State("add-note-modal", "opened"),
+         State("new-note-title", "value"),
+         State("new-note-tags", "value"),
+         State("new-note-content", "value")],
+        prevent_init_call=True,
+    )
+    def add_note(open_clicks, new_note_clicks, opened, title, tags, content):
+        if open_clicks and not opened:
+            return True
+        if new_note_clicks:
+            if title and tags and content:
+                print("post note")
+                return False
+        return no_update
