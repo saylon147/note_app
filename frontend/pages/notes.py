@@ -104,5 +104,13 @@ def register_callback_notes(app):
         if new_note_clicks:
             if title and tags and content:
                 print("post note")
-                return False
+                response = requests.post(f"{API_URL}/notes",
+                                         json={"title": title, "content": content, "tags": tags})
+                if response.status_code == 201:
+                    msg = response.json()["msg"]
+                    print(msg)
+                    return False
+                else:
+                    print(response.status_code)
+                    return no_update
         return no_update

@@ -9,16 +9,15 @@ from datetime import datetime
 
 auth = Blueprint('auth', __name__)
 
-# 定义错误码和对应信息
+
 ERROR_CODES = {
     400: "Bad Request",
     401: "Unauthorized",
     404: "Not Found",
-    500: "Internal Server Error"
+    500: "Internal Server Error",
 }
 
 
-# 统一响应函数
 def create_response(message, status_code):
     return (jsonify({"msg": message, "status": status_code,
                     "error": ERROR_CODES.get(status_code, "")}),

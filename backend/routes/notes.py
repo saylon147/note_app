@@ -4,12 +4,26 @@ from utils.models import Note, User
 
 notes = Blueprint('notes', __name__)
 
+ERROR_CODES = {
+    404: "Not Found",
+    500: "Internal Server Error",
+}
+
+
+def create_response(message, status_code):
+    return (jsonify({"msg": message, "status": status_code,
+                    "error": ERROR_CODES.get(status_code, "")}),
+            status_code)
+
 
 @notes.route('/notes', methods=['POST'])
 @jwt_required()
 def create_note():
     user_id = get_jwt_identity()
     user = User.objects(id=user_id).first()
+
+    if not user:
+        return create_response("User not found", 404)
 
     data = request.get_json()
     title = data.get('title')
