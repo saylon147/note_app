@@ -103,7 +103,7 @@ def register_callback_notes(app):
             return True
         if new_note_clicks:
             if title and tags and content:
-                print("post note")
+                # print("post note")
                 headers = {
                     "Authorization": f"Bearer {session["access_token"]}"
                 }

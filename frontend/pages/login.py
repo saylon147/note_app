@@ -44,6 +44,7 @@ def register_callback_login(app):
                 response = requests.post(f"{AUTH_URL}/login",
                                          json={"username": username, "password": password})
                 if response.status_code == 200:
+                    session["username"] = username
                     session["access_token"] = response.json().get("access_token")
                     session["refresh_token"] = response.json().get("refresh_token")
                     return dmc.Notification(
