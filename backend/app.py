@@ -1,3 +1,5 @@
+import logging
+
 from flask import Flask
 from utils.extensions import init_db, bcrypt, jwt
 from routes.auth import auth
@@ -6,6 +8,7 @@ from routes.notes import notes
 
 def create_app():
     app = Flask(__name__)
+    app.logger.setLevel(logging.DEBUG)
     app.config.from_object('utils.config.Config')
 
     # 初始化扩展

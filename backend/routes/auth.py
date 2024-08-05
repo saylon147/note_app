@@ -73,3 +73,13 @@ def resetpwd():
     user.save()
 
     return create_response("Password reset successfully", 200)
+
+
+# FOR ADMIN
+@auth.route('/usernames', methods=['GET'])
+# @jwt_required()
+def get_usernames():
+    users = User.objects.only('username')
+    usernames = [user.username for user in users]
+    return jsonify(usernames=usernames), 200
+

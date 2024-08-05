@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from utils.models import Note, User
+from utils.models import Note, TextNote, User
+
 
 notes = Blueprint('notes', __name__)
 
@@ -19,21 +20,25 @@ def create_response(message, status_code):
 @notes.route('/notes', methods=['POST'])
 @jwt_required()
 def create_note():
-    user_id = get_jwt_identity()
-    user = User.objects(id=user_id).first()
+    try:
+        user_id = get_jwt_identity()
+        user = User.objects(id=user_id).first()
 
-    if not user:
-        return create_response("User not found", 404)
+        if not user:
+            return create_response("User not found", 404)
 
-    data = request.get_json()
-    title = data.get('title')
-    content = data.get('content')
-    tags = data.get('tags')
+        data = request.get_json()
+        title = data.get('title')
+        content = data.get('content')
+        tags = data.get('tags')
 
-    note = Note(user=user, title=title, content=content, tags=tags)
-    note.save()
+        note = TextNote(user=user, title=title, content=content, tags=tags)
+        note.save()
 
-    return jsonify({"msg": "Note created successfully"}), 201
+        return jsonify({"msg": "Note created successfully"}), 201
+    except Exception as e:
+        current_app.logger.error(f"Error creating note: {str(e)}")
+        return create_response("Internal Server Error", 500)
 
 
 @notes.route('/notes', methods=['GET'])

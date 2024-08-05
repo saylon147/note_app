@@ -104,7 +104,11 @@ def register_callback_notes(app):
         if new_note_clicks:
             if title and tags and content:
                 print("post note")
+                headers = {
+                    "Authorization": f"Bearer {session["access_token"]}"
+                }
                 response = requests.post(f"{API_URL}/notes",
+                                         headers=headers,
                                          json={"title": title, "content": content, "tags": tags})
                 if response.status_code == 201:
                     msg = response.json()["msg"]
