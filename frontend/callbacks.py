@@ -7,6 +7,7 @@ from pages.login import login_page, register_callback_login
 from pages.register import register_page, register_callback_register
 from pages.notes import notes_page, register_callback_notes
 from pages.reset_pwd import reset_pwd_page, register_callback_reset_pwd
+from pages.upload import upload_page, register_callback_upload
 
 
 def register_callbacks(app):
@@ -28,6 +29,8 @@ def register_callbacks(app):
             return reset_pwd_page(username)
         elif pathname == "/notes":
             return notes_page()
+        elif pathname == "/upload":
+            return upload_page()
         else:
             return html.Div(
                 [
@@ -40,3 +43,4 @@ def register_callbacks(app):
     register_callback_register(app)
     register_callback_reset_pwd(app)
     register_callback_notes(app)
+    register_callback_upload(app)
